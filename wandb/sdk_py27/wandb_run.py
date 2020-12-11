@@ -198,7 +198,7 @@ class Run(object):
         self._final_summary = None
         self._sampled_history = None
         self._jupyter_progress = None
-        if self._settings._jupyter:
+        if self._settings._jupyter and ipython._get_python_type() == "jupyter":
             self._jupyter_progress = ipython.jupyter_progress_bar()
 
         self._output_writer = None
