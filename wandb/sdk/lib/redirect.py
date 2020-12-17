@@ -249,7 +249,7 @@ class Capture(object):
         self._tee = tee
 
     def _start(self):
-        rd, wr = os.pipe()
+        rd, wr = getattr(os, "openpty", os.pipe)
         self._pipe_rd = rd
         self._pipe_wr = wr
         self._started = True
