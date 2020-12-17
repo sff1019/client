@@ -146,7 +146,6 @@ class Redirect(object):
         self._tee = tee
 
         self._old_fd = None
-        self._old_fp = None
 
         _src = getattr(sys, src)
         if _src != getattr(sys, "__%s__" % src):
@@ -205,16 +204,14 @@ class Redirect(object):
         logger.info("install start")
 
         fp = getattr(sys, "__%s__" % self._stream)
-        fd = fp.fileno()
-        old_fp = os.fdopen(os.dup(fd), "w")
+        fd = os.dup(fp.fileno())
 
         if self._tee:
-            self._dest._set_tee(old_fp.fileno())
+            self._dest._set_tee(fd)
         self._dest._start()
         self._installed = True
 
         self._old_fd = fd
-        self._old_fp = old_fp
 
         self._redirect(to_fd=self._dest._get_writer(), unbuffered=self._unbuffered)
         logger.info("install stop")
@@ -222,7 +219,7 @@ class Redirect(object):
     def uninstall(self):
         if self._installed:
             logger.info("uninstall start")
-            self._redirect(to_fd=self._old_fp.fileno(), close=True)
+            self._redirect(to_fd=self._old_fd, close=True)
             self._dest._stop()
             self._installed = False
             logger.info("uninstall done")
